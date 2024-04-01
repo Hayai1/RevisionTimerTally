@@ -10,9 +10,21 @@
     </script>
 </head>
 <body>
+    <h1>Revision Timer</h1>
+    <h2 id="startText">Working</h2>
+    <h2 id="pauseText">Paused</h2>
+    <h2 id="startBreakText">Break Time</h2>
     <div id="app"></div>
+    
+    
     <button onclick="displayPause()" id="startBtn">Start</button>
     <button onclick="displayStart()" id="pauseBtn">Pause</button>
+    <button id="startBreakBtn">Start Break</button>
+    <div id="hours">
+        <h1>Hours <div id="hoursDone"></div></h1>
+    </div>
+    
+    
     <script>
       
       // Credit: Mateusz Rybczonec
@@ -35,53 +47,94 @@ const COLOR_CODES = {
   }
 };
 let tl = {{time_limit_arg|tojson}};
-const TIME_LIMIT = tl;
+let bt = {{break_time_arg|tojson}};
+let TIME_LIMIT = tl;
 let timePassed = 0;
+let hoursCompleted = 0;
 let timeLeft = TIME_LIMIT;
 let timerInterval = null;
 let remainingPathColor = COLOR_CODES.info.color;
+let breakTime = false; 
+let started = false;
+let working = true;
+function displayBaseTimer(){
+  document.getElementById("app").innerHTML = `
+  <div class="base-timer">
+    <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <g class="base-timer__circle">
+        <circle class="base-timer__path-elapsed" cx="50" cy="50" r="45"></circle>
+        <path
+          id="base-timer-path-remaining"
+          stroke-dasharray="283"
+          class="base-timer__path-remaining ${remainingPathColor}"
+          d="
+            M 50, 50
+            m -45, 0
+            a 45,45 0 1,0 90,0
+            a 45,45 0 1,0 -90,0
+          "
+        ></path>
+      </g>
+    </svg>
+    <span id="base-timer-label" class="base-timer__label">${formatTime(
+      timeLeft
+    )}</span>
 
-document.getElementById("app").innerHTML = `
-<div class="base-timer">
-  <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <g class="base-timer__circle">
-      <circle class="base-timer__path-elapsed" cx="50" cy="50" r="45"></circle>
-      <path
-        id="base-timer-path-remaining"
-        stroke-dasharray="283"
-        class="base-timer__path-remaining ${remainingPathColor}"
-        d="
-          M 50, 50
-          m -45, 0
-          a 45,45 0 1,0 90,0
-          a 45,45 0 1,0 -90,0
-        "
-      ></path>
-    </g>
-  </svg>
-  <span id="base-timer-label" class="base-timer__label">${formatTime(
-    timeLeft
-  )}</span>
-
-  
-</div>
-`;
+    
+  </div>
+  `;
+}
+displayBaseTimer();
 var startButton = document.getElementById("startBtn");
 var pauseButton = document.getElementById("pauseBtn");
+var startBreakButton = document.getElementById("startBreakBtn");
+
+
+var startText = document.getElementById("startText");
+var pauseText = document.getElementById("pauseText");
+var startBreakText = document.getElementById("startBreakText");
+
+var hoursDone = document.getElementById("hoursDone");
 startButton.style.display = "block";
 pauseButton.style.display = "None";
+startBreakButton.style.display = "None";
+
+startText.style.display = "block";
+pauseText.style.display = "None";
+startBreakText.style.display = "None";
+
 function displayStart(){
   startButton.style.display = "block";
   pauseButton.style.display = "None";
+  startBreakButton.style.display = "None";
+  console.log("displayStart");
+  if (started){
+    startText.style.display = "None";
+    pauseText.style.display = "block";
+    startBreakText.style.display = "None";
+    return;
+  }
+  return;
 }
 function displayPause(){
   startButton.style.display = "None";
   pauseButton.style.display = "block";
+  startBreakButton.style.display = "None";
+  if (working){
+    startText.style.display = "block";
+    pauseText.style.display = "None";
+    startBreakText.style.display = "None";
+    return;
+  }
+  startText.style.display = "None";
+  pauseText.style.display = "None";
+  startBreakText.style.display = "block";
+  return;
 }
 
 startButton.addEventListener("click", startTimer);
 pauseButton.addEventListener("click", pauseTimer);
-
+startBreakButton.addEventListener("click", startTimer);
 function pauseTimer() {
   clearInterval(timerInterval);
 }
@@ -89,9 +142,41 @@ function pauseTimer() {
 
 function onTimesUp() {
   clearInterval(timerInterval);
+  timePassed = 0;
+  timerInterval = null;
+  started = false
+  if (breakTime){
+    console.log("work Time");
+    TIME_LIMIT = tl;
+    breakTime = false;
+    displayStart();
+    working = true;
+    timeLeft = TIME_LIMIT;
+    displayBaseTimer();
+    return;    
+  }
+  working = false;
+  TIME_LIMIT = bt;
+  breakTime = true;
+  hoursCompleted += 1;
+  hoursDone.innerHTML = hoursCompleted + "/6";
+  startButton.style.display = "None";
+  pauseButton.style.display = "None";
+  startBreakButton.style.display = "block";
+
+  startText.style.display = "None";
+  pauseText.style.display = "None";
+  startBreakText.style.display = "block";
+
+  timeLeft = TIME_LIMIT;
+  displayBaseTimer();
+  console.log("Break Time");
 }
 
 function startTimer() {
+  
+  started = true;
+  displayPause();
   timerInterval = setInterval(() => {
     timePassed = timePassed += 1;
     timeLeft = TIME_LIMIT - timePassed;

@@ -3,7 +3,7 @@ body {
     src: url('sodo-sans-6.ttf');
     background-color: #d3bca5;
     display: grid;
-    height: 100vh;
+    height: 95vh;
     place-items: center;
   }
   
