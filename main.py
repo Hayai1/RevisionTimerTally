@@ -16,7 +16,7 @@ def startRevision():
     hours_completed = session.get('hoursCompleted', 0)
     return render_template('main.html', hours_completed_arg=int(hours_completed), time_limit_arg=10, break_time_arg=5)
 
-@app.route('/index')
+@app.route('/')
 def index():
     session.pop('hoursCompleted', None)
     return render_template('revision.html')
