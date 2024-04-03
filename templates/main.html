@@ -152,7 +152,7 @@ function saveHours(hoursCompleted) {
     });
   }
 
-hoursDone.innerHTML = hoursCompleted + "/6";
+hoursDone.innerHTML = hoursCompleted;
 function onTimesUp() {
   clearInterval(timerInterval);
   timePassed = 0;
@@ -173,7 +173,7 @@ function onTimesUp() {
   TIME_LIMIT = bt;
   breakTime = true;
   hoursCompleted += 1;
-  hoursDone.innerHTML = hoursCompleted + "/6";
+  hoursDone.innerHTML = hoursCompleted;
   startButton.style.display = "None";
   pauseButton.style.display = "None";
   startBreakButton.style.display = "block";

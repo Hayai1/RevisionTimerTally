@@ -1,8 +1,10 @@
 from flask import Flask
 from flask import render_template, url_for, jsonify, session, request
+
 app = Flask(__name__, template_folder='templates', static_folder='static')
 app.secret_key = 'your secret key'
 
+import webview
 
 @app.route('/save_hours', methods=['POST'])
 def save_hours():
@@ -14,7 +16,7 @@ def save_hours():
 @app.route('/start_revision')
 def startRevision():
     hours_completed = session.get('hoursCompleted', 0)
-    return render_template('main.html', hours_completed_arg=int(hours_completed), time_limit_arg=10, break_time_arg=5)
+    return render_template('main.html', hours_completed_arg=int(hours_completed), time_limit_arg=3600, break_time_arg=600)
 
 @app.route('/')
 def index():
@@ -22,6 +24,8 @@ def index():
     return render_template('revision.html')
 
 
+webview.create_window('Revision App', app)
 
 if __name__ == '__main__':
-    app.run(debug=True,)
+    #app.run()
+    webview.start()
